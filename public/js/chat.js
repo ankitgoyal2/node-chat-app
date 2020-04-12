@@ -1,5 +1,6 @@
 var socket = io();
 
+
 function scrollToBottom(){
     //selectors
     var messages = jQuery("#messages");
@@ -18,6 +19,17 @@ function scrollToBottom(){
 
 socket.on("connect", () => {
     console.log("connected to server");
+
+    var params = jQuery.deparam(window.location.search);
+    socket.emit("join",params,(err)=>{
+        if(err){
+            alert(err);
+            window.location.href = "/";
+        }else{
+            console.log("no error");
+        }
+
+    })
 });
 
 socket.on("newMessage", (newMessage) => {
@@ -59,6 +71,14 @@ socket.on("newLocationMessage",(message)=>{
      })
      jQuery("#messages").append(html);
      scrollToBottom();
+})
+
+socket.on("updateUserList",(users)=>{
+    var ol = jQuery("<ol></ol>");
+    users.forEach( user => {
+        ol.append(jQuery("<li></li>").text(user));
+    });
+    jQuery("#users").html(ol);
 })
 
 socket.on("disconnect", () => {
